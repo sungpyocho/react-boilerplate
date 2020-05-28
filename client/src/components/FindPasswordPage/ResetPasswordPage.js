@@ -46,11 +46,11 @@ const useStyles = makeStyles((theme) => ({
 export default function ResetPasswordPage(props) {
   const classes = useStyles();
 
-  const [Password, setPassword] = useState(""); // 비번
-  const [ConfirmPassword, setConfirmPassword] = useState(""); // 비번 확인
-  const [arePasswordsSame, setArePasswordsSame] = useState(true); // 두 비번이 같은가?
-  const [isLinkValid, setIsLinkValid] = useState(true); // 링크가 유효한가?
-  const [isUsingPastPassword, setIsUsingPastPassword] = useState(false); // 과거 비밀번호를 또 입력했나?
+  const [Password, setPassword] = useState("");
+  const [ConfirmPassword, setConfirmPassword] = useState("");
+  const [arePasswordsSame, setArePasswordsSame] = useState(true); // Are two password same?
+  const [isLinkValid, setIsLinkValid] = useState(true); // Is link valid?
+  const [isUsingPastPassword, setIsUsingPastPassword] = useState(false); // Did the user typed past password?
 
   const passwordHandler = (event) => {
     setPassword(event.currentTarget.value);
@@ -63,25 +63,25 @@ export default function ResetPasswordPage(props) {
   const submitHandler = (event) => {
     event.preventDefault();
 
-    // 1. 비밀번호를 입력하지 않았다면...? => (그럴일은 잘 없으니) 브라우저단의 Alert
+    // 1. If the user didn't enter password...? => browser alert
     if (Password === "" || ConfirmPassword === "") {
-      alert("비밀번호를 입력해주세요.");
+      alert("Enter your password");
     } else if (Password !== ConfirmPassword) {
-      // 2. 입력한 비밀번호가 서로 다르다면...? => Material UI의 화면상 Alert. Submit 버튼 밑에 뜨게.
+      // 2. Are two passwords different...? => Material UI Alert. below the Submit button.
       setArePasswordsSame(false);
       setIsUsingPastPassword(false);
     } else {
       setArePasswordsSame(true);
       setIsUsingPastPassword(false);
 
-      // axios로 백엔드 API와 통신
+      // post data to server API with axios
       axios
         .post("/api/users/reset", {
           password: Password,
           resetPwdToken: props.location.pathname.slice(7),
         })
         .then((res) => {
-          // 3. 비밀번호 재설정 링크가 유효하지 않다면..
+          // 3. If the email reset link is not valid..
           if (res.data.message === "link not valid") {
             setIsLinkValid(false);
             setIsUsingPastPassword(false);
@@ -89,13 +89,13 @@ export default function ResetPasswordPage(props) {
             setIsLinkValid(true);
             setIsUsingPastPassword(false);
           }
-          // 4. 예전에 사용한 비밀번호를 또 입력했다면..
+          // 4. If the user enters the password that was used last time..
           if (res.data.pwdNotChanged === true) {
             setIsUsingPastPassword(true);
           }
-          // 5. 전부 관문을 통과한다면 로그인 페이지로 리다이렉트
+          // 5. All clear: redirect to login page
           if (res.data.success === true && res.data.userInfo) {
-            alert("비밀번호가 성공적으로 변경되었습니다.");
+            alert("Your password is now successfuly updated.");
             props.history.push("/login");
           }
         })
@@ -113,12 +113,13 @@ export default function ResetPasswordPage(props) {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          비밀번호 재설정
+          Reset Password
         </Typography>
         {!isLinkValid && (
           <Alert severity="error">
-            비밀번호 재설정 URL의 유효기간이 지났습니다. <br />
-            비밀번호 찾기를 다시 진행해주세요.
+            Password reset URL is not valid.
+            <br />
+            Please try find password page once again.
           </Alert>
         )}
         {isLinkValid && (
@@ -130,7 +131,7 @@ export default function ResetPasswordPage(props) {
                   required
                   fullWidth
                   name="new-password"
-                  label="새 비밀번호"
+                  label="new password"
                   type="password"
                   id="new-password"
                   autoComplete="new-password"
@@ -144,7 +145,7 @@ export default function ResetPasswordPage(props) {
                   required
                   fullWidth
                   name="confirmPassword"
-                  label="비밀번호 확인"
+                  label="confirm password"
                   type="password"
                   id="confirmPassword"
                   autoComplete="new-password"
@@ -155,15 +156,15 @@ export default function ResetPasswordPage(props) {
               {!arePasswordsSame && (
                 <Grid item xs={12}>
                   <Alert severity="error">
-                    비밀번호를 동일하게 입력해주세요.
+                    Plase enter the password correctly.
                   </Alert>
                 </Grid>
               )}
               {isUsingPastPassword && (
                 <Grid item xs={12}>
                   <Alert severity="error">
-                    저번에 동일한 비밀번호를 사용하셨네요. <br />
-                    다른 비밀번호를 설정해주세요.
+                    You already used this password last time. <br />
+                    Please set different password this time.
                   </Alert>
                 </Grid>
               )}
@@ -174,7 +175,7 @@ export default function ResetPasswordPage(props) {
               variant="contained"
               className={classes.submit}
             >
-              새 비밀번호 설정
+              Continue
             </Button>
           </form>
         )}

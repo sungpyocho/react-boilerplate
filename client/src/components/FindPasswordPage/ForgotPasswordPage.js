@@ -54,20 +54,20 @@ export default function ForgotPasswordPage(props) {
   };
 
   const sendEmailHandler = (event) => {
-    event.preventDefault(); // page refresh 방지
+    event.preventDefault(); // prevent page refresh
 
     if (Email === "") {
-      alert("이메일을 입력해주세요.");
+      alert("Enter your email.");
     } else {
       axios
         .post("/api/users/forgot", {
           email: Email,
         })
         .then((res) => {
-          if (res.data.message === "해당 이메일로 가입한 이력이 없습니다.") {
+          if (res.data.message === "email not found") {
             setShowError(true);
             setSentEmail(false);
-          } else if (res.data.message === "비밀번호 복구 이메일 송신 완료") {
+          } else if (res.data.message === "password reset mail sent") {
             setShowError(false);
             setSentEmail(true);
           }
@@ -86,12 +86,10 @@ export default function ForgotPasswordPage(props) {
           <DraftsIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          비밀번호 찾기
+          Password assistance
         </Typography>
-        <Typography>회원가입 때 사용했던 비밀번호를 입력해 주세요.</Typography>
-        <Typography>
-          해당 이메일로 비밀번호 재설정 URL을 보내드립니다.
-        </Typography>
+        <Typography>Enter the email address of your account.</Typography>
+        <Typography>We will send password reset URL to your email.</Typography>
         <form className={classes.form} onSubmit={sendEmailHandler} noValidate>
           <TextField
             variant="outlined"
@@ -99,20 +97,16 @@ export default function ForgotPasswordPage(props) {
             required
             fullWidth
             id="email"
-            label="이메일 주소"
+            label="email address"
             name="email"
             autoComplete="email"
             autoFocus
             value={Email}
             onChange={emailHandler}
           />
-          {showError && (
-            <Alert severity="error">
-              해당 이메일로 가입한 이력이 없습니다.
-            </Alert>
-          )}
+          {showError && <Alert severity="error">Email not found</Alert>}
           {sentEmail && (
-            <Alert severity="success">비밀번호 복구 이메일을 보냈습니다!</Alert>
+            <Alert severity="success">Password reset email sent!</Alert>
           )}
           <Button
             type="submit"
@@ -120,7 +114,7 @@ export default function ForgotPasswordPage(props) {
             variant="contained"
             className={classes.submit}
           >
-            확인
+            Continue
           </Button>
         </form>
       </div>

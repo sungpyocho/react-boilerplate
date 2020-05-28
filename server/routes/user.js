@@ -103,7 +103,7 @@ router.post("/forgot", (req, res) => {
       console.error("email not in database");
       return res.json({
         emailInDB: false,
-        message: "해당 이메일로 가입한 이력이 없습니다.",
+        message: "email not found",
       });
     } else {
       // 만약 유저를 찾았다면 해시토큰 생성
@@ -158,7 +158,7 @@ router.post("/forgot", (req, res) => {
       // sendMail의 콜백함수 안에 return을 넣으면 response가 죽어도 안옴!
       if (sentValid) {
         return res.status(200).json({
-          message: "비밀번호 복구 이메일 송신 완료",
+          message: "password reset mail sent",
         });
       } else {
         return res.status(500).json({
